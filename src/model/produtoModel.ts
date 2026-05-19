@@ -1,31 +1,29 @@
-import { getProdutos } from './../controllers/produtoController';
-import { pool } from './../config/database';
+import { pool } from './../config/database'; [cite: 7]
 
-export interface Produto {
-  id?: number;
-  nome: string;
-  preco: number
-}
+export interface Produto { [cite: 8]
+    id?: number; [cite: 9]
+    nome: string; [cite: 10]
+    preco: number; [cite: 13]
+} [cite: 15]
 
-export class ProdutoModel {
-  async getAll(): Promise<Produto[]> {
-    const [rows] = await pool.query('select * from produtos');
-    return rows as Produto[]
-  }
+export class ProdutoModel { [cite: 18]
 
-  async create(produto: Produto): Promise<void> {
-    await pool.query('INSERT INTO products (nome, preco) VALUE (?.?',
-      [produto.nome, produto.preco]);
-  }
+    async getAll(): Promise<Produto[]> { [cite: 23]
+        const [rows] = await pool.query('SELECT * FROM produtos'); [cite: 24]
+        return rows as Produto[]; [cite: 25]
+    } [cite: 28]
 
-  async update(id: number, produto: Produto): Promise<void> {
-    await pool.query('UPDATE getProdutos SET nome = ?, preco = ?, WHERE id = ?',
-      [produto.nome, produto.preco, id]
-    )
-  }
+    async create(produto: Produto): Promise<void> { [cite: 31]
+        await pool.query('INSERT INTO produtos (nome, preco) VALUES (?,?)', 
+        [produto.nome, produto.preco]); [cite: 34]
+    } [cite: 36]
 
-  async delete(id: number): Promise<void>{
-    await pool.query('DELETE FROM produtos WHERE id = ?', 
-      [id])
-  }
+    async update(id: number, produto: Produto): Promise<void> { [cite: 39]
+        await pool.query('UPDATE produtos SET nome = ?, preco = ? WHERE id = ?', 
+        [produto.nome, produto.preco, id]); [cite: 42]
+    } [cite: 44]
+
+    async delete(id: number): Promise<void> { [cite: 47]
+        await pool.query('DELETE FROM produtos WHERE id = ?', [id]); [cite: 49]
+    } [cite: 50]
 }
