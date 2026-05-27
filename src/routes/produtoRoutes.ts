@@ -1,16 +1,16 @@
-import { Router } from "express"; [cite: 108]
+import { Router } from "express";
 import { 
     getProdutos, 
     createProduto, 
     updateProduto, 
     deleteProduto 
-} from "./../controllers/produtoController"; [cite: 108]
+} from "./../controllers/produtoController";
 
-const router = Router(); [cite: 108]
+const router = Router(); 
 
-router.get('/produtos', getProdutos); [cite: 108]
-router.post('/produtos', createProduto); [cite: 108]
-router.put('/produtos/:id', updateProduto); [cite: 108]
-router.delete('/produtos/:id', deleteProduto); [cite: 108]
+router.get('/produtos', getProdutos);
+router.post('/produtos', createProduto); 
+router.put('/produtos/:id', updateProduto);
+router.delete('/produtos/:id', deleteProduto);
 
-export default router; [cite: 108]
+export default router;

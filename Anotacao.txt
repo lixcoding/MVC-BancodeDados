@@ -26,8 +26,8 @@ Front CRIAR LISTAR ALTERAR DELETAR
 
 Para rodar o servidor, utiliar o comando "npx ts-node src/app.ts"
 
-DB_HOST:localhost
-DB_USER:root
-DB_PASSWORD:aluno
-DB_DATABASE:crud_ts
-DB_PORT:3302 
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=aluno
+DB_DATABASE=crud_ts
+DB_PORT=3302 
