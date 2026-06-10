@@ -6,41 +6,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CRUD de Produtos</title>
   <link rel="stylesheet" href="css/style.css">
-
 </head>
 
 <body>
   <div class="container">
     <h1>Gerenciamento de Produtos</h1>
-
-    <!-- Criar Produto -->
+    
     <h2>Criar Produto</h2>
     <form id="createForm">
       <label for="nome">Nome:</label>
       <input type="text" id="nome" name="nome" required>
-
       <label for="preco">Preço:</label>
       <input type="number" id="preco" name="preco" step="0.01" required>
-
       <button type="submit">Criar Produto</button>
     </form>
 
-    <!-- Atualizar Produto -->
     <h2>Atualizar Produto</h2>
     <form id="updateForm">
       <label for="updateId">ID do Produto:</label>
       <input type="number" id="updateId" name="updateId" required>
-
       <label for="updateNome">Nome:</label>
       <input type="text" id="updateNome" name="updateNome">
-
       <label for="updatePreco">Preço:</label>
       <input type="number" id="updatePreco" name="updatePreco" step="0.01">
-
       <button type="submit">Atualizar Produto</button>
     </form>
 
-    <!-- Lista de Produtos -->
     <h2>Lista de Produtos</h2>
     <button id="fetchProductsBtn">Carregar Produtos</button>
     <table>
@@ -56,17 +47,24 @@
       </tbody>
     </table>
   </div>
+
   <script>
+    // ALTERE AQUI: Coloque a URL do seu servidor backend se não estiver rodando na mesma porta
+    const API_URL = 'http://localhost:3000/api/produtos'; 
+
+    // --- 1. CONFIGURAÇÃO DO FORMULÁRIO DE CRIAÇÃO (POST) ---
     document.getElementById('createForm').addEventListener('submit', async function (e) {
       e.preventDefault();
       const nome = document.getElementById('nome').value;
       const preco = document.getElementById('preco').value;
+
       try {
-        const response = await fetch('/api/produtos', {
-          method:
-            headers:
-          body:
-    });
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome, preco: parseFloat(preco) })
+        });
+
         if (response.ok) {
           alert('Produto criado com sucesso!');
           document.getElementById('createForm').reset();
@@ -75,67 +73,92 @@
           alert('Erro ao criar produto.');
         }
       } catch (error) {
+        console.error(error);
         alert('Erro de comunicação com o servidor.');
       }
     });
-    document.getElementById('fetchProductsBtn').addEventListener('click', loadProducts);
-    async function loadProducts() {
-      const response = await fetch('/api/produtos');
-      const produtos = await response.json();
-      const tbody = document.getElementById('produtosTableBody');
-      tbody.innerHTML = '';
-      produtos.forEach(produto => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-  <td>${produto.id}</td>
-  <td>${produto.nome}</td>
-  <td>${produto.preco}</td>
-  <td class="actions">
-    <button onclick="deleteProduct(${produto.id})">Excluir</button></td>
-  `;
-        tbody.appendChild(row);
-      });
-      document.getElementById('updateForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
 
-        const id = document.getElementById('updateId').value;
-        const nome = document.getElementById('updateNome').value;
-        const preco = document.getElementById('updatePreco').value;
-        try {
-          const response = await fetch(`/api/produtos/${id}`, {
-            method:
-              headers:
-            body:
+    // --- 2. CONFIGURAÇÃO DO FORMULÁRIO DE ATUALIZAÇÃO (PUT) ---
+    document.getElementById('updateForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const id = document.getElementById('updateId').value;
+      const nome = document.getElementById('updateNome').value;
+      const preco = document.getElementById('updatePreco').value;
+
+      const dadosAtualizados = {};
+      if (nome) dadosAtualizados.nome = nome;
+      if (preco) dadosAtualizados.preco = parseFloat(preco);
+
+      try {
+        const response = await fetch(`${API_URL}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dadosAtualizados)
+        });
+
+        if (response.ok) {
+          alert('Produto atualizado com sucesso!');
+          document.getElementById('updateForm').reset();
+          loadProducts();
+        } else {
+          alert('Erro ao atualizar produto.');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Erro de comunicação com o servidor');
+      }
     });
-          if (response.ok) {
-            alert('Produto atualizado com sucesso!');
-            document.getElementById('updateForm').reset();
-            loadProducts();
-          } else {
-            alert('Erro ao atualizar produto.');
-          }
-        } catch (error) {
-          alert('Erro de comunicação com o servidor');
-        }
-      });
 
-      async function deleteProduct(id) {
-        try {
-          const response = await fetch(`/api/produtos/${id}`, {
-            method:
-  });
-          if (response.ok) {
-            alert('Produto excluído com sucesso!');
-            loadProducts();
-          } else {
-            alert('Erro ao excluir produto.');
-          }
-        } catch (error) {
-          alert('Erro de comunicação com o servidor.');
+    // --- 3. LISTAR PRODUTOS (GET) ---
+    document.getElementById('fetchProductsBtn').addEventListener('click', loadProducts);
+
+    async function loadProducts() {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Erro ao buscar dados');
+        
+        const produtos = await response.json();
+        const tbody = document.getElementById('produtosTableBody');
+        tbody.innerHTML = '';
+
+        produtos.forEach(produto => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${produto.id}</td>
+            <td>${produto.nome}</td>
+            <td>R$ ${parseFloat(produto.preco).toFixed(2)}</td>
+            <td class="actions">
+              <button onclick="deleteProduct(${produto.id})">Excluir</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error(error);
+        alert('Erro ao carregar produtos do servidor.');
+      }
+    }
+
+    // --- 4. EXCLUIR PRODUTO (DELETE) ---
+    async function deleteProduct(id) {
+      if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+
+      try {
+        const response = await fetch(`${API_URL}/${id}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          alert('Produto excluído com sucesso!');
+          loadProducts();
+        } else {
+          alert('Erro ao excluir produto.');
         }
+      } catch (error) {
+        console.error(error);
+        alert('Erro de comunicação com o servidor.');
       }
     }
   </script>
 </body>
-
 </html>
